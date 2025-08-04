@@ -1,205 +1,274 @@
-# KMP SDK Project
+# KMP Cross-Platform SDKs Proof of Concept
 
-A comprehensive Kotlin Multiplatform (KMP) project with native UI implementations and platform-specific SDK generation targeting Android, iOS, Flutter, and React Native platforms.
+## Overview
+
+This project demonstrates a proof of concept for Kotlin Multiplatform (KMP) SDKs that can be consumed by multiple platforms including Android, iOS, Flutter, and React Native. The goal is to share business logic and data models across all platforms while maintaining platform-specific UI implementations.
 
 ## Project Structure
 
 ```
 poc_kmp_sdks/
-├── shared/                 # Shared KMP module with business logic
-├── android/                # Android UI module with Jetpack Compose
-├── ios/                    # iOS UI module with SwiftUI
-├── flutter_bridge/         # Flutter plugin bridge
-├── rn_bridge/             # React Native bridge
-├── consumer/              # Consumer applications
-│   ├── android/           # Android consumer app
-│   ├── flutter/           # Flutter consumer app
-│   └── rn/               # React Native consumer app
-└── build.gradle.kts      # Root build configuration
+├── shared/                    # Core shared business logic
+│   ├── src/commonMain/       # Common Kotlin code
+│   ├── src/androidMain/      # Android-specific implementations
+│   └── src/iosMain/          # iOS-specific implementations
+├── android/                   # Android SDK module
+├── flutter_bridge/           # Flutter plugin bridge
+├── rn_bridge/                # React Native bridge
+├── consumer/                 # Consumer applications
+│   ├── android/              # Android consumer app
+│   ├── flutter/              # Flutter consumer app
+│   └── rn/                   # React Native consumer app
+└── scripts/                  # Build scripts
 ```
 
-## Features
+## Architecture
 
-### Shared Module (`shared/`)
-- **Data Models**: User and Product data classes with serialization
-- **Repository Pattern**: Interfaces and fake implementations for data access
-- **Use Cases**: Domain logic for user and product operations
-- **Platform Interfaces**: Abstractions for navigation and platform services
-- **Multi-target Support**: Android, iOS, and JavaScript (React Native)
+### Shared SDK Core
 
-### Android Module (`android/`)
-- **Jetpack Compose UI**: Modern declarative UI components
-- **Navigation**: Compose Navigation integration
-- **ViewModels**: MVVM architecture with Compose integration
-- **AAR Generation**: Configured for local Maven publishing
+The `SharedSDK` class serves as the main entry point for all platform implementations:
 
-### iOS Module (`ios/`)
-- **SwiftUI**: Native iOS UI components
-- **ObservableObject**: iOS state management pattern
-- **XCFramework**: Configured for universal framework generation
-- **Swift Package Manager**: Ready for distribution
+- **Data Models**: `User` and `Product` entities
+- **Use Cases**: Business logic for data operations
+- **Repositories**: Data access layer with fake implementations
+- **Platform Services**: Platform-specific functionality injection
 
-### Flutter Bridge (`flutter_bridge/`)
-- **Method Channel**: Communication between Flutter and native platforms
-- **Dart Models**: Mirror of shared data models
-- **Plugin Architecture**: Standard Flutter plugin structure
-- **Platform Implementations**: Android and iOS native implementations
+### Key Features
 
-### React Native Bridge (`rn_bridge/`)
-- **Native Modules**: Android (Kotlin) and iOS (Swift) implementations
-- **TypeScript**: Full TypeScript support with proper type definitions
-- **Promise-based API**: Modern async/await pattern
-- **NPM Package**: Ready for local and remote distribution
+- **Cross-platform data operations**: Get users, products, search functionality
+- **Platform navigation**: Navigate between screens across platforms
+- **Platform services**: Logging, messaging, device info
+- **Shared business logic**: Use cases and repositories
 
-## Quick Start
+## Supported Platforms
+
+### Android
+- Native Android SDK (AAR)
+- Compose Multiplatform UI
+- Platform-specific navigation
+
+### iOS
+- XCFramework for iOS integration
+- SwiftUI implementations
+- Native iOS navigation
+
+### Flutter
+- Flutter plugin bridge
+- Dart bindings for shared functionality
+- Platform channel communication
+
+### React Native
+- Native module bridge
+- TypeScript definitions
+- JavaScript/TypeScript API
+
+## Getting Started
 
 ### Prerequisites
-- JDK 11 or higher
-- Android Studio with Kotlin Multiplatform Mobile plugin
-- Xcode (for iOS development)
-- Flutter SDK (for Flutter consumer)
-- Node.js and npm/yarn (for React Native consumer)
 
-### Building the Project
+- Kotlin 1.9+
+- Android Studio / IntelliJ IDEA
+- Gradle 8.0+
+- For iOS: Xcode 14+ (macOS only)
+- For Flutter: Flutter SDK
+- For React Native: Node.js
 
-1. **Clean and build all SDKs:**
-   ```bash
-   ./gradlew cleanAll buildAllSDKs
-   ```
+### Building All SDKs
 
-2. **Setup consumer projects:**
-   ```bash
-   ./gradlew setupConsumerProjects
-   ```
+```bash
+# Make scripts executable
+chmod +x scripts/*.sh
 
-### Running Consumer Applications
+# Build all SDKs
+./scripts/build-all-sdks.sh
+```
 
-#### Android Consumer
+### Individual SDK Builds
+
+```bash
+# Android SDK only
+./scripts/build-android-sdk.sh
+
+# iOS SDK only (macOS required)
+./scripts/build-ios-sdk.sh
+
+# Flutter SDK only
+./scripts/build-flutter-sdk.sh
+
+# React Native SDK only
+./scripts/build-rn-sdk.sh
+```
+
+### Gradle Tasks
+
+```bash
+# Clean all modules
+./gradlew cleanAll
+
+# Build all SDKs
+./gradlew buildAllSDKs
+
+# Setup consumer projects
+./gradlew setupConsumerProjects
+```
+
+## Consumer Applications
+
+### Android Consumer
+
 ```bash
 cd consumer/android
 ../../gradlew assembleDebug
 ```
 
-#### Flutter Consumer
+### Flutter Consumer
+
 ```bash
 cd consumer/flutter
 flutter pub get
 flutter run
 ```
 
-#### React Native Consumer
+### React Native Consumer
+
 ```bash
 cd consumer/rn
 npm install
 npm run android  # or npm run ios
 ```
 
-## SDK Usage Examples
+## SDK Integration
 
-### Shared SDK (Kotlin)
+### Android Integration
+
 ```kotlin
 // Initialize SDK
-val platformServices = AndroidPlatformServices(context)
-val sharedSDK = SharedSDK(platformServices)
+val sharedSDK = SharedSDK(
+    platformServices = AndroidPlatformServices(),
+    platformNavigator = AndroidNavigator()
+)
 sharedSDK.initialize()
 
-// Get users
+// Use SDK
 val users = sharedSDK.getUsers()
-
-// Get products
-val products = sharedSDK.getProducts()
-
-// Search functionality
-val searchResults = sharedSDK.searchUsers("john")
+sharedSDK.navigateToUserDetails("user123")
 ```
 
-### Flutter Usage
+### iOS Integration
+
+```swift
+// Initialize SDK
+let sharedSDK = SharedSDK(
+    platformServices: IOSPlatformServices(),
+    platformNavigator: IOSNavigator()
+)
+sharedSDK.initialize()
+
+// Use SDK
+let users = await sharedSDK.getUsers()
+sharedSDK.navigateToUserDetails(userId: "user123")
+```
+
+### Flutter Integration
+
 ```dart
 // Initialize SDK
-final sdk = KmpSharedSdk();
-await sdk.initialize();
+final sharedSDK = KmpSharedSdkFlutter();
+await sharedSDK.initialize();
 
-// Get data
-final users = await sdk.getUsers();
-final products = await sdk.getProducts();
-
-// Search
-final searchResults = await sdk.searchUsers("john");
+// Use SDK
+final users = await sharedSDK.getUsers();
+await sharedSDK.navigateToUserDetails("user123");
 ```
 
-### React Native Usage
+### React Native Integration
+
 ```typescript
 // Initialize SDK
 import { KmpSharedSdk } from 'kmp-shared-sdk-rn';
 
-const sdk = new KmpSharedSdk();
-await sdk.initialize();
+const sharedSDK = new KmpSharedSdk();
+await sharedSDK.initialize();
 
-// Get data
-const users = await sdk.getUsers();
-const products = await sdk.getProducts();
-
-// Search
-const searchResults = await sdk.searchUsers("john");
+// Use SDK
+const users = await sharedSDK.getUsers();
+await sharedSDK.navigateToUserDetails("user123");
 ```
 
-## Architecture
+## Current State
 
-### Shared Business Logic
-- **Repository Pattern**: Clean separation of data access
-- **Use Cases**: Encapsulated business operations
-- **Data Models**: Serializable with kotlinx.serialization
-- **Coroutines**: Async operations with structured concurrency
+### Implemented Features
 
-### Platform-Specific UI
-- **Android**: Jetpack Compose with Material Design 3
-- **iOS**: SwiftUI with Human Interface Guidelines
-- **Cross-Platform**: Flutter and React Native bridges
+- Shared data models (User, Product)
+- Business logic use cases
+- Repository pattern with fake data
+- Platform-specific navigation
+- Platform services abstraction
+- Cross-platform SDK builds
 
-### SDK Distribution
-- **Android**: AAR files published to local Maven
-- **iOS**: XCFramework for universal distribution
-- **Flutter**: Plugin with method channels
-- **React Native**: Native modules with TypeScript definitions
+### Platform-Specific UIs
 
-## Development Guidelines
+Currently, each platform has separate UI implementations:
 
-### Code Organization
-- Keep business logic in the `shared` module
-- Platform-specific UI in respective modules
-- Bridge implementations should be minimal adapters
-- Use dependency injection for platform services
+- **Android**: Compose Multiplatform screens
+- **iOS**: SwiftUI views
+- **Flutter**: Dart widgets
+- **React Native**: React components
 
-### Testing Strategy
-- Unit tests for shared business logic
-- UI tests for platform-specific components
-- Integration tests for bridge implementations
+### Future Roadmap
 
-### Publishing
-- Local Maven for Android AARs
-- XCFramework for iOS distribution
-- Flutter plugin for pub.dev
-- NPM package for React Native
+The project is designed to transition to shared UI components:
 
-## TODOs and Future Enhancements
+1. **Phase 1**: Shared business logic (Current)
+2. **Phase 2**: Shared UI components using Compose Multiplatform
+3. **Phase 3**: Unified navigation and state management
+4. **Phase 4**: Platform-specific UI customization
 
-- [ ] Add comprehensive unit tests
-- [ ] Implement real network repositories
-- [ ] Add authentication module
-- [ ] Implement offline data persistence
-- [ ] Add CI/CD pipeline configuration
-- [ ] Performance optimization and benchmarking
-- [ ] Documentation generation automation
-- [ ] Error handling improvements
-- [ ] Logging and analytics integration
+## Development
+
+### Adding New Features
+
+1. Add data models in `shared/src/commonMain/kotlin/main_code/data/`
+2. Create use cases in `shared/src/commonMain/kotlin/main_code/domain/`
+3. Implement repositories in `shared/src/commonMain/kotlin/main_code/repository/`
+4. Add methods to `SharedSDK` class
+5. Update platform-specific bridges if needed
+
+### Platform-Specific Implementation
+
+- **Android**: Implement in `shared/src/androidMain/`
+- **iOS**: Implement in `shared/src/iosMain/`
+- **Flutter**: Update `flutter_bridge/` plugin
+- **React Native**: Update `rn_bridge/` module
+
+## Build Outputs
+
+After building, SDKs are available in:
+
+- **Android**: `build/localMaven/org/nadeem/project/android-sdk/`
+- **iOS**: `build/ios-sdk/SharedSDK.xcframework`
+- **Flutter**: `build/flutter-sdk/`
+- **React Native**: `build/rn-sdk/`
+
+## Testing
+
+### Unit Tests
+
+```bash
+./gradlew shared:test
+```
+
+### Consumer App Testing
+
+Each consumer application includes basic integration tests to verify SDK functionality.
 
 ## Contributing
 
-1. Follow the existing code style and architecture
-2. Add tests for new functionality
-3. Update documentation for API changes
-4. Ensure all platforms build successfully
+1. Follow the existing project structure
+2. Add tests for new features
+3. Update build scripts if adding new platforms
+4. Test on all target platforms
 
 ## License
 
-Apache License 2.0 - see LICENSE file for details.
+This project is a proof of concept and may be subject to specific licensing terms.
