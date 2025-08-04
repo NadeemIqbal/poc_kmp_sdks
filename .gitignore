@@ -160,3 +160,5 @@ temp/
 *.keystore
 *.jks
 key.properties
+/gradle/wrapper/gradle-wrapper.jar
+/main_code/poc_kmp_sdks/gradle/wrapper/gradle-wrapper.jar
