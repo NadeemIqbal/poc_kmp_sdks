@@ -1,0 +1,26 @@
+name: consumer_flutter
+description: Flutter consumer app demonstrating KMP SDK usage
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  
+  # Local KMP SDK dependency
+  kmp_shared_sdk_flutter:
+    path: ../../main_code/poc_kmp_sdks/flutter_bridge
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
